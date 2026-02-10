@@ -8,6 +8,11 @@ putenv('VERCEL=true');
 $_ENV['FORCE_HTTPS'] = 'true';
 putenv('FORCE_HTTPS=true');
 
+// Direct test route for Vercel debugging
+if ($_SERVER['REQUEST_URI'] === '/test-vercel') {
+    die('Vercel entry point is working! URL: ' . $_SERVER['REQUEST_URI']);
+}
+
 // Force Logging to stderr
 // to avoid Read-only file system error
 $_ENV['LOG_CHANNEL'] = 'stderr';
