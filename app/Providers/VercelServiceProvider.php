@@ -22,11 +22,20 @@ class VercelServiceProvider extends ServiceProvider
     public function boot()
     {
         if (env('RUN_MIGRATIONS')) {
-            if (!\Illuminate\Support\Facades\Schema::hasTable('users')) {
-                \Illuminate\Support\Facades\Artisan::call('migrate', [
-                    '--force' => true,
-                    '--seed' => true
-                ]);
+            try {
+                // Check for users table
+                $usersExist = \Illuminate\Support\Facades\Schema::hasTable('users');
+
+                if (!$usersExist) {
+                    // Try to run migration
+                    \Illuminate\Support\Facades\Artisan::call('migrate', [
+                        '--force' => true,
+                        '--seed' => true
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // Log or report error if needed
+                \Illuminate\Support\Facades\Log::error('Vercel Migration Failed: ' . $e->getMessage());
             }
         }
     }

@@ -18,6 +18,10 @@ $dbPath = '/tmp/database.sqlite';
 if (!file_exists($dbPath)) {
     touch($dbPath);
 }
+$_ENV['DB_CONNECTION'] = 'sqlite';
+putenv('DB_CONNECTION=sqlite');
+$_ENV['DB_DATABASE'] = $dbPath;
+putenv('DB_DATABASE=' . $dbPath);
 
 // Ensure Storage directories exist in /tmp
 $storagePath = '/tmp/storage';

@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/migrate-db', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true, '--seed' => true]);
+        return "Base de datos migrada y sembrada con éxito.";
+    } catch (\Exception $e) {
+        return "Error al migrar la base de datos: " . $e->getMessage();
+    }
+});
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
