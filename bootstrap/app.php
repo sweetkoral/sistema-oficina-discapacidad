@@ -17,6 +17,17 @@ $app = new Illuminate\Foundation\Application(
 
 /*
 |--------------------------------------------------------------------------
+| Vercel Path Overrides
+|--------------------------------------------------------------------------
+*/
+if (isset($_ENV['VERCEL']) || getenv('VERCEL')) {
+    $app->useStoragePath('/tmp/storage');
+    // Ensure the bootstrap cache is also handled if possible
+    // Note: Some versions of Laravel use a different method for bootstrap path
+}
+
+/*
+|--------------------------------------------------------------------------
 | Bind Important Interfaces
 |--------------------------------------------------------------------------
 |

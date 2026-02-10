@@ -4,46 +4,58 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Set Vercel environment flag
+// Set Vercel environment flags
 $_ENV['VERCEL'] = 'true';
 putenv('VERCEL=true');
-
-// Force Debug mode temporarily to see the real error
 $_ENV['APP_DEBUG'] = 'true';
 putenv('APP_DEBUG=true');
 
-// Ensure SQLite database exists in /tmp since Vercel is read-only
+// Force Logging to stderr to avoid Read-only file system error
+$_ENV['LOG_CHANNEL'] = 'stderr';
+putenv('LOG_CHANNEL=stderr');
+
+// Ensure SQLite database exists in /tmp
 $dbPath = '/tmp/database.sqlite';
 if (!file_exists($dbPath)) {
     touch($dbPath);
 }
 
-// Set storage path to /tmp/storage for write access
+// Ensure Storage directories exist in /tmp
 $storagePath = '/tmp/storage';
-if (!is_dir($storagePath)) {
-    mkdir($storagePath, 0755, true);
-    mkdir($storagePath . '/framework/views', 0755, true);
-    mkdir($storagePath . '/framework/cache', 0755, true);
-    mkdir($storagePath . '/framework/sessions', 0755, true);
-    mkdir($storagePath . '/logs', 0755, true);
+$dirs = [
+    $storagePath . '/framework/views',
+    $storagePath . '/framework/cache',
+    $storagePath . '/framework/sessions',
+    $storagePath . '/logs',
+    '/tmp/bootstrap/cache', // Add this for bootstrap cache issues
+];
+
+foreach ($dirs as $dir) {
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
 }
+
+// Point bootstrap cache to /tmp as well
 putenv('APP_STORAGE=' . $storagePath);
+$_ENV['APP_STORAGE'] = $storagePath;
 
 // Check for APP_KEY
 if (!getenv('APP_KEY') && !isset($_ENV['APP_KEY'])) {
-    die('Error: APP_KEY is not set in Vercel Environment Variables. Please add it in project settings.');
+    die('Error: APP_KEY is not set in Vercel Environment Variables.');
 }
 
-// Auto-migrate if we are on Vercel and it's a new DB
+// Auto-migrate if we are on Vercel
 $_ENV['RUN_MIGRATIONS'] = 'true';
 
-// Forward Vercel requests to normal Laravel index.php with error capturing
+// Forward Vercel requests to normal Laravel index.php
 try {
     require __DIR__ . '/../public/index.php';
 } catch (\Throwable $e) {
     echo "<h1>Error Crítico de Laravel en Vercel</h1>";
     echo "<p><strong>Mensaje:</strong> " . $e->getMessage() . "</p>";
     echo "<p><strong>Archivo:</strong> " . $e->getFile() . " (Línea " . $e->getLine() . ")</p>";
-    echo "<h3>Traza:</h3>";
+    echo "<h3>Sugerencia:</h3>";
+    echo "<p>Asegúrate de que <strong>LOG_CHANNEL</strong> sea 'stderr' y <strong>APP_KEY</strong> esté configurada.</p>";
     echo "<pre>" . $e->getTraceAsString() . "</pre>";
 }
