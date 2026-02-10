@@ -1,6 +1,5 @@
 {
     "version": 2,
-    "framework": "laravel",
     "functions": {
         "api/index.php": {
             "runtime": "vercel-php@0.6.0"
@@ -16,8 +15,12 @@
             "dest": "/public/img/$1"
         },
         {
-            "src": "/(favicon.ico|robots.txt)",
-            "dest": "/public/$1"
+            "src": "/favicon.ico",
+            "dest": "/public/favicon.ico"
+        },
+        {
+            "src": "/robots.txt",
+            "dest": "/public/robots.txt"
         },
         {
             "src": "/(.*)",
