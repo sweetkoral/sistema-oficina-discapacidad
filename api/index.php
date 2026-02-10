@@ -50,6 +50,7 @@ if (!getenv('APP_KEY') && !isset($_ENV['APP_KEY'])) {
 
 // Auto-migrate if we are on Vercel
 $_ENV['RUN_MIGRATIONS'] = 'true';
+putenv('RUN_MIGRATIONS=true');
 
 // Forward Vercel requests to normal Laravel index.php
 try {
