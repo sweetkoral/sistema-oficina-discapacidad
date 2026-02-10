@@ -22,12 +22,11 @@ class VercelServiceProvider extends ServiceProvider
     public function boot()
     {
         if (env('RUN_MIGRATIONS')) {
-            try {
-                // Check if database is already migrated
-                \Illuminate\Support\Facades\Schema::hasTable('users');
-            } catch (\Exception $e) {
-                // If not, run migrations
-                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            if (!\Illuminate\Support\Facades\Schema::hasTable('users')) {
+                \Illuminate\Support\Facades\Artisan::call('migrate', [
+                    '--force' => true,
+                    '--seed' => true
+                ]);
             }
         }
     }
