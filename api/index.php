@@ -8,6 +8,10 @@ error_reporting(E_ALL);
 $_ENV['VERCEL'] = 'true';
 putenv('VERCEL=true');
 
+// Force Debug mode temporarily to see the real error
+$_ENV['APP_DEBUG'] = 'true';
+putenv('APP_DEBUG=true');
+
 // Ensure SQLite database exists in /tmp since Vercel is read-only
 $dbPath = '/tmp/database.sqlite';
 if (!file_exists($dbPath)) {
@@ -27,15 +31,19 @@ putenv('APP_STORAGE=' . $storagePath);
 
 // Check for APP_KEY
 if (!getenv('APP_KEY') && !isset($_ENV['APP_KEY'])) {
-    die('Error: APP_KEY is not set in Vercel Environment Variables.');
+    die('Error: APP_KEY is not set in Vercel Environment Variables. Please add it in project settings.');
 }
 
 // Auto-migrate if we are on Vercel and it's a new DB
-if (getenv('VERCEL') === 'true') {
-    // We can't easily run artisan here without booting Laravel, 
-    // but we can set a flag for a Middleware or a ServiceProvider to handle it.
-    $_ENV['RUN_MIGRATIONS'] = 'true';
-}
+$_ENV['RUN_MIGRATIONS'] = 'true';
 
-// Forward Vercel requests to normal Laravel index.php
-require __DIR__ . '/../public/index.php';
+// Forward Vercel requests to normal Laravel index.php with error capturing
+try {
+    require __DIR__ . '/../public/index.php';
+} catch (\Throwable $e) {
+    echo "<h1>Error Crítico de Laravel en Vercel</h1>";
+    echo "<p><strong>Mensaje:</strong> " . $e->getMessage() . "</p>";
+    echo "<p><strong>Archivo:</strong> " . $e->getFile() . " (Línea " . $e->getLine() . ")</p>";
+    echo "<h3>Traza:</h3>";
+    echo "<pre>" . $e->getTraceAsString() . "</pre>";
+}
