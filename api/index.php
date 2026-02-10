@@ -39,6 +39,10 @@ foreach ($dirs as $dir) {
 // Point bootstrap cache to /tmp as well
 putenv('APP_STORAGE=' . $storagePath);
 $_ENV['APP_STORAGE'] = $storagePath;
+$_ENV['APP_SERVICES_CACHE'] = '/tmp/storage/framework/services.php';
+$_ENV['APP_PACKAGES_CACHE'] = '/tmp/storage/framework/packages.php';
+$_ENV['APP_CONFIG_CACHE'] = '/tmp/storage/framework/config.php';
+$_ENV['APP_ROUTES_CACHE'] = '/tmp/storage/framework/routes.php';
 
 // Check for APP_KEY
 if (!getenv('APP_KEY') && !isset($_ENV['APP_KEY'])) {

@@ -11,19 +11,33 @@
 |
 */
 
-$app = new Illuminate\Foundation\Application(
-    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
-);
-
 /*
 |--------------------------------------------------------------------------
 | Vercel Path Overrides
 |--------------------------------------------------------------------------
 */
 if (isset($_ENV['VERCEL']) || getenv('VERCEL')) {
+    class VercelApplication extends Illuminate\Foundation\Application
+    {
+        public function bootstrapPath($path = '')
+        {
+            $base = '/tmp/bootstrap';
+            $fullPath = $base . ($path ? DIRECTORY_SEPARATOR . $path : '');
+            $dir = $path ? dirname($fullPath) : $fullPath;
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+            return $fullPath;
+        }
+    }
+    $app = new VercelApplication(
+        $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
+    );
     $app->useStoragePath('/tmp/storage');
-    // Ensure the bootstrap cache is also handled if possible
-    // Note: Some versions of Laravel use a different method for bootstrap path
+} else {
+    $app = new Illuminate\Foundation\Application(
+        $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
+    );
 }
 
 /*
