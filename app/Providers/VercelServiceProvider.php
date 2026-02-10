@@ -9,32 +9,26 @@ class VercelServiceProvider extends ServiceProvider
     public function register()
     {
         if (env('VERCEL')) {
-            // Re-route storage paths to /tmp since Vercel is read-only
-            $this->app->instance('path.storage', '/tmp/storage');
-
-            // Ensure directories exist
-            if (!is_dir('/tmp/storage/framework/views')) {
-                mkdir('/tmp/storage/framework/views', 0755, true);
-            }
-            if (!is_dir('/tmp/storage/framework/cache')) {
-                mkdir('/tmp/storage/framework/cache', 0755, true);
-            }
-            if (!is_dir('/tmp/storage/framework/sessions')) {
-                mkdir('/tmp/storage/framework/sessions', 0755, true);
-            }
-            if (!is_dir('/tmp/storage/logs')) {
-                mkdir('/tmp/storage/logs', 0755, true);
-            }
+            $storagePath = env('APP_STORAGE', '/tmp/storage');
+            $this->app->instance('path.storage', $storagePath);
 
             // Set specific config for paths
-            config(['view.compiled' => '/tmp/storage/framework/views']);
-            config(['cache.stores.file.path' => '/tmp/storage/framework/cache']);
-            config(['session.files' => '/tmp/storage/framework/sessions']);
+            config(['view.compiled' => $storagePath . '/framework/views']);
+            config(['cache.stores.file.path' => $storagePath . '/framework/cache']);
+            config(['session.files' => $storagePath . '/framework/sessions']);
         }
     }
 
     public function boot()
     {
-        //
+        if (env('RUN_MIGRATIONS')) {
+            try {
+                // Check if database is already migrated
+                \Illuminate\Support\Facades\Schema::hasTable('users');
+            } catch (\Exception $e) {
+                // If not, run migrations
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            }
+        }
     }
 }
