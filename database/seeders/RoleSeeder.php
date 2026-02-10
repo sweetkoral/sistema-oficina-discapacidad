@@ -26,5 +26,13 @@ class RoleSeeder extends Seeder
         ]);
 
         $admin->assignRole($adminRole);
+
+        $demo = \App\Models\User::create([
+            'name' => 'Demo Cochamó',
+            'email' => 'demo@cochamo.cl',
+            'password' => \Illuminate\Support\Facades\Hash::make('cochamo'),
+        ]);
+
+        $demo->assignRole($adminRole);
     }
 }
