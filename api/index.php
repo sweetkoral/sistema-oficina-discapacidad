@@ -1,16 +1,15 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // Set Vercel environment flags
 $_ENV['VERCEL'] = 'true';
 putenv('VERCEL=true');
-$_ENV['APP_DEBUG'] = 'true';
-putenv('APP_DEBUG=true');
 
-// Force Logging to stderr to avoid Read-only file system error
+// Force HTTPS for assets
+$_ENV['FORCE_HTTPS'] = 'true';
+putenv('FORCE_HTTPS=true');
+
+// Force Logging to stderr
+// to avoid Read-only file system error
 $_ENV['LOG_CHANNEL'] = 'stderr';
 putenv('LOG_CHANNEL=stderr');
 
